@@ -1,9 +1,7 @@
 package com.mrcolly.ppmtool.domain;
 
-
-import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.annotation.JsonFormat;
-import org.hibernate.annotations.ColumnDefault;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
@@ -29,15 +27,28 @@ public class Project {
     @NotBlank
     private String description;
 
-    @JsonFormat(pattern = "yyyy-mm-dd")
+    @JsonFormat(pattern = "yyyy-MM-dd")
     private Date startDate;
-    @JsonFormat(pattern = "yyyy-mm-dd")
+    @JsonFormat(pattern = "yyyy-MM-dd")
     private Date endDate;
 
+    @Column(updatable = false)
     private Date createdAt;
     private Date updatedAt;
 
+    @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL, mappedBy = "project")
+    @JsonIgnore
+    private Backlog backlog;
+
     public Project() {
+    }
+
+    public Project(@NotBlank(message = "project name is required") String name, @NotBlank(message = "project identifier is required") @Size(min = 4, max = 5, message = "please use 4 or 5 char") String identifier, @NotBlank String description, Date startDate, Date endDate) {
+        this.name = name;
+        this.identifier = identifier;
+        this.description = description;
+        this.startDate = startDate;
+        this.endDate = endDate;
     }
 
     @PrePersist
@@ -112,5 +123,13 @@ public class Project {
 
     public void setUpdatedAt(Date updatedAt) {
         this.updatedAt = updatedAt;
+    }
+
+    public Backlog getBacklog() {
+        return backlog;
+    }
+
+    public void setBacklog(Backlog backlog) {
+        this.backlog = backlog;
     }
 }
